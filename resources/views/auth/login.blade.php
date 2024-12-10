@@ -24,15 +24,18 @@
 
 <body class="login-page bg-body-secondary">
     <div class="login-box">
-        <div class="login-logo"> <a href="../index2.html"><b>Admin</b>LTE</a> </div> <!-- /.login-logo -->
+        <div class="login-logo"> <a href="../index2.html"><b>Sign in</b></a> </div> <!-- /.login-logo -->
         <div class="card">
             <div class="card-body login-card-body">
-                <p class="login-box-msg">Sign in to start your session</p>
-                <form action="" method="post">
-                    <div class="input-group mb-3"> <input type="email" class="form-control" placeholder="Email">
+                @include('_message')
+                <form action="{{ url('login_post') }}" method="post">
+                    @csrf
+                    <div class="input-group mb-3"> <input type="email" name="email" value="{{ old('email') }}"
+                            class="form-control" placeholder="Email" required>
                         <div class="input-group-text"> <span class="bi bi-envelope"></span> </div>
                     </div>
-                    <div class="input-group mb-3"> <input type="password" class="form-control" placeholder="Password">
+                    <div class="input-group mb-3"> <input type="password" name="password" class="form-control"
+                            placeholder="Password" required>
                         <div class="input-group-text"> <span class="bi bi-lock-fill"></span> </div>
                     </div> <!--begin::Row-->
                     <div class="row">
@@ -52,7 +55,7 @@
             </div> <!-- /.login-card-body -->
         </div>
     </div> <!-- /.login-box --> <!--begin::Third Party Plugin(OverlayScrollbars)-->
-  
+
     <script src="{{ asset('dist/js/adminlte.js') }}"></script> <!--end::Required Plugin(AdminLTE)--><!--begin::OverlayScrollbars Configure-->
 
 </body><!--end::Body-->
