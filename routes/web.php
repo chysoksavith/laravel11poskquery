@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
@@ -39,6 +40,14 @@ Route::group(['middleware' => 'role:1', 'prefix' => 'admin'], function () {
         Route::get('/product/edit/{id}', 'edit');
         Route::post('/product/update/{id}', 'update');
         Route::delete('/product/delete/{id}', 'destroy');
+    });
+    Route::controller(MemberController::class)->group(function () {
+        Route::get('/member', 'index');
+        Route::get('/member/data', 'getMember');
+        Route::post('/member/store', 'store');
+        Route::get('/member/edit/{id}', 'edit');
+        Route::post('/member/update/{id}', 'update');
+        Route::delete('/member/delete/{id}', 'destroy');
     });
 });
 

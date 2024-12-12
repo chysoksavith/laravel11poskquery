@@ -38,13 +38,13 @@
                     </li>
 
                     <li class="nav-item">
-                        <a href="{{url('admin/product')}}" class="nav-link">
+                        <a href="{{ url('admin/product') }}" class="nav-link">
                             <i class="nav-icon fa fa-cubes"></i>
                             <p>Product</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="./docs/color-mode.html" class="nav-link">
+                        <a href="{{ url('admin/member') }}" class="nav-link">
                             <i class="nav-icon fa fa-id-card"></i>
                             <p>Members</p>
                         </a>
