@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\NotFoundController;
@@ -30,6 +31,14 @@ Route::group(['middleware' => 'role:1', 'prefix' => 'admin'], function () {
         Route::get('/brand/edit/{id}', 'edit');
         Route::post('/brand/update/{id}', 'update');
         Route::delete('/brand/delete/{id}', 'destroy');
+    });
+    Route::controller(ProductController::class)->group(function () {
+        Route::get('/product', 'index');
+        Route::get('/product/data', 'getProduct');
+        Route::post('/product/store', 'store');
+        Route::get('/product/edit/{id}', 'edit');
+        Route::post('/product/update/{id}', 'update');
+        Route::delete('/product/delete/{id}', 'destroy');
     });
 });
 
