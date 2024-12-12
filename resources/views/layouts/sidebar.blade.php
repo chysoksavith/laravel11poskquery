@@ -25,11 +25,18 @@
                     </li>
                     <li class="nav-header">Master</li>
                     <li class="nav-item">
-                        <a href="{{url('admin/category')}}" class="nav-link">
+                        <a href="{{ url('admin/category') }}" class="nav-link">
                             <i class="nav-icon fa fa-cube"></i>
                             <p>Category</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{ url('admin/brand') }}" class="nav-link">
+                            <i class="nav-icon fa fa-cube"></i>
+                            <p>brand</p>
+                        </a>
+                    </li>
+                   
                     <li class="nav-item">
                         <a href="./docs/color-mode.html" class="nav-link">
                             <i class="nav-icon fa fa-cubes"></i>
@@ -127,7 +134,6 @@
                             <p>Active Transaction</p>
                         </a>
                     </li>
-
                 @endif
             </ul>
         </nav>

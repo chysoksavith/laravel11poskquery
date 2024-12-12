@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
@@ -21,6 +22,14 @@ Route::group(['middleware' => 'role:1', 'prefix' => 'admin'], function () {
         Route::get('/category/edit/{id}', 'edit');
         Route::post('/category/update/{id}', 'update');
         Route::delete('/category/delete/{id}', 'destroy');
+    });
+    Route::controller(BrandController::class)->group(function () {
+        Route::get('/brand', 'index');
+        Route::get('/brand/data', 'getBrand');
+        Route::post('/brand/store', 'store');
+        Route::get('/brand/edit/{id}', 'edit');
+        Route::post('/brand/update/{id}', 'update');
+        Route::delete('/brand/delete/{id}', 'destroy');
     });
 });
 
