@@ -40,6 +40,7 @@ Route::group(['middleware' => 'role:1', 'prefix' => 'admin'], function () {
         Route::get('/product/edit/{id}', 'edit');
         Route::post('/product/update/{id}', 'update');
         Route::delete('/product/delete/{id}', 'destroy');
+        Route::post('/update-status','updateStatus');
     });
     Route::controller(MemberController::class)->group(function () {
         Route::get('/member', 'index');

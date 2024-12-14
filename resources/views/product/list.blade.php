@@ -34,17 +34,27 @@
                             </div>
                         </div>
 
-                        <div class="card-body">
+                        <div class="card-body p-2">
+                            <div class="row mb-4">
+                                <div class="col-md-4">
+                                    <input type="text" id="search-input" class="form-control"
+                                        placeholder="Search Product">
+                                </div>
+                                <div class="col-md-2">
+                                    <button id="search-button" class="btn btn-primary">Search</button>
+                                </div>
+                            </div>
                             <table class="table table-bordered" id="product-table">
                                 <thead>
                                     <tr>
                                         <th>#</th>
                                         <th>Name</th>
                                         <th>Category</th>
-                                        <th>Brand</th>
-                                        <th>Product Price</th>
+                                        <th>Image</th>
+                                        <th>Product Code</th>
                                         <th>Selling Price</th>
                                         <th>Stock</th>
+                                        <th>Status</th>
                                         <th>Create at</th>
                                         <th>Update at</th>
                                         <th>Action</th>
@@ -54,6 +64,8 @@
 
                                 </tbody>
                             </table>
+                            <div id="pagination-links" class="mt-3"></div>
+
                         </div>
                     </div>
                 </div>
@@ -70,7 +82,8 @@
                     <h5 class="modal-title" id="addProductModal">Add Category</h5>
                 </div>
                 <div class="modal-body">
-                    <form id="productForm" method="POST" action="{{ url('admin/product/store') }}">
+                    <form id="productForm" method="POST" action="{{ url('admin/product/store') }}"
+                        enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label">Product Name</label>
@@ -146,6 +159,14 @@
                             @enderror
                         </div>
 
+                        <div class="mb-3">
+                            <label class="form-label">Image</label>
+                            <input type="file" class="form-control" name="image" id="image" required>
+                            @error('image')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             <button type="submit" class="btn btn-primary">Save</button>
@@ -161,28 +182,49 @@
 @section('js')
     <script>
         $(document).ready(function() {
+            let currentPage = 1;
+            let searchQuery = '';
+
             // Fetch products and populate the table
-            function fetchProduct() {
+            function fetchProduct(page = 1, search = '') {
                 $.ajax({
                     url: "{{ url('admin/product/data') }}",
                     type: "GET",
+                    data: {
+                        page,
+                        search
+                    },
                     success: function(response) {
-                        if (response) {
-                            let tableBody = '';
-                            $.each(response, function(index, product) {
+                        let tableBody = '';
+                        if (response.data.length === 0) {
+                            tableBody = `
+                            <tr>
+                                <td colspan="10" class="text-center">No Data Available</td>
+                            </tr>`;
+                        } else {
+                            $.each(response.data, function(index, product) {
                                 let createdAt = dayjs(product.created_at).format(
                                     'MM-DD-YYYY h:mm A');
                                 let updatedAt = dayjs(product.updated_at).format(
                                     'MM-DD-YYYY h:mm A');
+                                let statusIcon = product.status == 1 ?
+                                    "<i class='fas fa-toggle-on' style='color:blue;' status='Active'></i>" :
+                                    "<i class='fas fa-toggle-off' style='color:grey;' status='Inactive'></i>";
+                                let imageUrl = product.image ? '/storage/' + product.image :
+                                    'null';
+                                let imageDisplay = imageUrl === 'null' ? 'No image ' :
+                                    `<img src="${imageUrl}" alt="Product Image" style="max-width: 100px;" />`;
                                 tableBody += `
                             <tr>
-                                <td>${index + 1}</td>
+                                <td>${product.id}</td>
                                 <td>${product.product_name}</td>
                                 <td>${product.category.category_name}</td>
-                                <td>${product.brand.name}</td>
+                                <td>${imageDisplay}</td>
+                                <td>${product.product_code}</td>
                                 <td>${product.product_price}$</td>
                                 <td>${product.selling_price}$</td>
                                 <td>${product.stock}</td>
+
                                 <td>${createdAt}</td>
                                 <td>${updatedAt}</td>
                                 <td>
@@ -191,16 +233,66 @@
                                 </td>
                             </tr>`;
                             });
-                            $('#product-table tbody').html(tableBody);
-
-                            // Attach Edit and Delete Handlers
-                            $('.edit-btn').on('click', handleEdit);
-                            $('.delete-btn').on('click', handleDelete);
                         }
+                        $('#product-table tbody').html(tableBody);
+                        renderPagination(response);
+                        // Attach Edit and Delete Handlers
+                        $('.edit-btn').on('click', handleEdit);
+                        $('.delete-btn').on('click', handleDelete);
                     }
                 });
             }
-            fetchProduct();
+
+            // Render pagination
+            function renderPagination(data) {
+                let pagination = `<nav><ul class="pagination">`;
+
+                if (data.prev_page_url) {
+                    pagination += `<li class="page-item">
+                <a href="#" class="page-link" data-page="${data.current_page - 1}">Previous</a>
+            </li>`;
+                }
+
+                for (let i = 1; i <= data.last_page; i++) {
+                    pagination += `<li class="page-item ${data.current_page === i ? 'active' : ''}">
+                <a href="#" class="page-link" data-page="${i}">${i}</a>
+            </li>`;
+                }
+
+                if (data.next_page_url) {
+                    pagination += `<li class="page-item">
+                <a href="#" class="page-link" data-page="${data.current_page + 1}">Next</a>
+            </li>`;
+                }
+
+                pagination += `</ul></nav>`;
+                $('#pagination-links').html(pagination);
+
+                // Bind Click Event to Pagination Links
+                $('.page-link').on('click', function(e) {
+                    e.preventDefault();
+                    const page = $(this).data('page');
+                    if (page) {
+                        currentPage = page; // Set the current page to the clicked page
+                        fetchProduct(currentPage,
+                            searchQuery); // Fetch products for the current page and search query
+                    }
+                });
+            }
+
+            // Auto search on input
+            $('#search-input').on('input', function() {
+                searchQuery = $(this).val();
+                fetchProduct(1, searchQuery); // Always start from page 1 on input
+            });
+
+            // Manual search on button click
+            $('#search-button').on('click', function() {
+                searchQuery = $('#search-input').val();
+                fetchProduct(1, searchQuery); // Always start from page 1 on search click
+            });
+
+            fetchProduct(currentPage, searchQuery);
 
             // Open Add Product Modal
             $('[data-target="#addProductModal"]').on('click', function() {
@@ -214,11 +306,13 @@
             function handleCreate(e) {
                 e.preventDefault();
                 $('.text-danger').remove();
-                const formData = $('#productForm').serialize();
+                const formData = new FormData($('#productForm')[0]);
                 $.ajax({
                     url: "{{ url('admin/product/store') }}",
                     method: "POST",
                     data: formData,
+                    processData: false,
+                    contentType: false,
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
@@ -230,7 +324,7 @@
                             .fadeIn()
                             .delay(3000)
                             .fadeOut();
-                        fetchProduct();
+                        fetchProduct(currentPage, searchQuery); // Re-fetch the products
                         $('#productForm')[0].reset();
                         $('#addProductModal').modal('hide');
                     },
@@ -268,11 +362,17 @@
                         $('#productForm').off('submit').on('submit', function(e) {
                             e.preventDefault();
                             $('.text-danger').remove();
-                            const formData = $(this).serialize();
+
+                            // Create FormData object for both regular fields and file input
+                            let formData = new FormData(
+                            this); // This includes the image input as well
+
                             $.ajax({
                                 url: `{{ url('admin/product/update') }}/${id}`,
                                 method: "POST",
                                 data: formData,
+                                processData: false, // Don't process the data
+                                contentType: false, // Don't set content-type, it's automatically handled by FormData
                                 headers: {
                                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
                                         'content')
@@ -285,7 +385,8 @@
                                         .fadeIn()
                                         .delay(3000)
                                         .fadeOut();
-                                    fetchProduct();
+                                    fetchProduct(currentPage,
+                                    searchQuery); // Re-fetch the products
                                     $('#productForm')[0].reset();
                                     $('#addProductModal').modal('hide');
                                 },
@@ -302,7 +403,8 @@
                     }
                 });
             }
-            // delete
+
+            // Handle Delete
             function handleDelete(e) {
                 e.preventDefault();
                 const id = $(this).data('id');
@@ -314,7 +416,7 @@
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(res) {
-                            fetchProduct(); // Refresh table
+                            fetchProduct(currentPage, searchQuery); // Re-fetch the products
                             $('.flashMessage')
                                 .text(res.success)
                                 .fadeIn()
@@ -325,5 +427,37 @@
                 }
             }
         });
+        $(document).on('click', '.updateProductStatus', function() {
+            var status = $(this).find("i").attr("status");
+            var product_id = $(this).attr("product_id");
+
+            $.ajax({
+                url: "{{ url('admin/update-status') }}",
+                method: "POST",
+                data: {
+                    status: status,
+                    product_id: product_id
+                },
+
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    console.log(response)
+                    if (response["status"] == 0) {
+                        $("#product-" + product_id).html(
+                            "<i class='fas fa-toggle-off' style='color:grey;' status='Inactive'></i>"
+                        );
+                    } else {
+                        $("#product-" + product_id).html(
+                            "<i class='fas fa-toggle-on' style='color:blue;' status='Active'></i>"
+                        );
+                    }
+                },
+                error: function() {
+                    alert("Error occurred during AJAX request");
+                },
+            })
+        })
     </script>
 @endsection
