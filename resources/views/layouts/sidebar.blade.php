@@ -50,6 +50,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="{{url('admin/pos')}}" class="nav-link">
+                            <i class="nav-icon fa fa-truck"></i>
+                            <p>Pos</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="./docs/color-mode.html" class="nav-link">
                             <i class="nav-icon fa fa-truck"></i>
                             <p>Supplier</p>

@@ -18,6 +18,7 @@ class ProductController extends Controller
         $brands = Brand::all()->pluck('name', 'id');
         return view('product.list', compact('categories', 'brands'));
     }
+
     public function getProduct(Request $request)
     {
         $query = Product::with('brand', 'category');
@@ -26,9 +27,20 @@ class ProductController extends Controller
             $query->where('product_name', 'like', '%' . $request->search . '%')
                 ->orWhere('product_code', 'like', '%' . $request->search . '%');
         }
-        $products = $query->paginate(1);
+        $products = $query->orderBy('created_at','desc')->paginate(15);
 
         return response()->json($products);
+    }
+    public function generateProductCode()
+    {
+        $lastProduct = Product::orderBy('id', 'desc')->first();
+        $lastProductCode = $lastProduct ? $lastProduct->product_code : null;
+
+        // Generate new product code (this is an example, customize it as needed)
+        $newProductCode = $lastProductCode ? (intval(substr($lastProductCode, -4)) + 1) : 1001;
+        $newProductCode = 'P' . str_pad($newProductCode, 4, '0', STR_PAD_LEFT);
+
+        return response()->json(['product_code' => $newProductCode]);
     }
 
     public function store(Request $request)
@@ -47,9 +59,11 @@ class ProductController extends Controller
         ]);
 
         try {
+            $imagePath = null;
+
             // Check if there's an image uploaded and store it
             if ($request->hasFile('image')) {
-                // Store the image and get the URL path
+                // Store the image and get the URL path in public storage
                 $imagePath = $request->file('image')->store('images', 'public');
             }
 
@@ -63,7 +77,7 @@ class ProductController extends Controller
                 'selling_price' => $validated['selling_price'],
                 'discount' => $validated['discount'],
                 'stock' => $validated['stock'],
-                'image' => isset($imagePath) ? $imagePath : null,  // Save the image path if it exists
+                'image' => $imagePath,  // Save the image path if it exists
             ]);
 
             return response()->json([
@@ -81,6 +95,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         return response()->json($product);
     }
+
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
@@ -97,14 +112,14 @@ class ProductController extends Controller
 
         try {
             $product = Product::findOrFail($id);
+            $imagePath = $product->image; // Keep the old image path
 
             // Check if a new image is uploaded
             if ($request->hasFile('image')) {
                 // Ensure the old image is deleted if it exists
-                if ($product->image && Storage::exists('public/' . $product->image)) {
-                    // Log for debugging the old image path
-                    Log::info("Deleting old image: " . 'public/' . $product->image);
-                    Storage::delete('public/' . $product->image);
+                if ($product->image && Storage::disk('public')->exists($product->image)) {
+                    Log::info("Deleting old image: " . $product->image);
+                    Storage::disk('public')->delete($product->image);
                 }
 
                 // Store the new image
@@ -121,34 +136,45 @@ class ProductController extends Controller
                 'selling_price' => $validated['selling_price'],
                 'discount' => $validated['discount'],
                 'stock' => $validated['stock'],
-                'image' => isset($imagePath) ? $imagePath : $product->image, // Keep old image if no new image
+                'image' => $imagePath, // Keep old image if no new image
             ]);
 
             return response()->json([
                 'success' => 'Product updated successfully.'
             ], 200);
         } catch (\Exception $e) {
-            // Log the error for debugging
             Log::error("Error updating product: " . $e->getMessage());
-
             return response()->json([
                 'error' => 'Failed to update product. Please try again later.'
             ], 500);
         }
     }
 
-
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
-        if ($product->image && Storage::exists('public/' . $product->image)) {
-            Storage::delete('public/' . $product->image);
+
+        // Check if there is an image and delete it
+        if ($product->image) {
+            $imagePath = $product->image; // Store the relative path to the image
+
+            // Check if the image exists in storage
+            if (Storage::disk('public')->exists($imagePath)) {
+                Log::info('Deleting image: ' . $imagePath);
+                Storage::disk('public')->delete($imagePath);
+            } else {
+                Log::warning('Image not found or does not exist: ' . $imagePath);
+            }
         }
+
+        // Delete the product record
         $product->delete();
+
         return response()->json([
-            'success' => "Product updated successfully"
+            'success' => "Product deleted successfully"
         ], 200);
     }
+
     public function updateStatus(Request $request)
     {
         if ($request->ajax()) {

@@ -24,6 +24,8 @@ Route::group(['middleware' => 'role:1', 'prefix' => 'admin'], function () {
         Route::get('/category/edit/{id}', 'edit');
         Route::post('/category/update/{id}', 'update');
         Route::delete('/category/delete/{id}', 'destroy');
+        Route::get('/pos', 'showPos')->name('pos.view');
+        Route::get('/pos/categories/{slug}', [CategoryController::class, 'showCategory'])->name('pos.categories.show'); // Products by Category
     });
     Route::controller(BrandController::class)->group(function () {
         Route::get('/brand', 'index');
@@ -40,7 +42,8 @@ Route::group(['middleware' => 'role:1', 'prefix' => 'admin'], function () {
         Route::get('/product/edit/{id}', 'edit');
         Route::post('/product/update/{id}', 'update');
         Route::delete('/product/delete/{id}', 'destroy');
-        Route::post('/update-status','updateStatus');
+        Route::post('/update-status', 'updateStatus');
+        Route::get('/generate-product-code', 'generateProductCode');
     });
     Route::controller(MemberController::class)->group(function () {
         Route::get('/member', 'index');

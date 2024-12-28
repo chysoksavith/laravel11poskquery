@@ -55,4 +55,16 @@ class CategoryController extends Controller
             'success' => 'category deleted'
         ]);
     }
+    //show
+    public function showPos()
+    {
+        $categories = Category::all(); // Fetch all categories for the sidebar
+        return view('pos.view', compact('categories'));
+    }
+    public function showCategory($slug)
+    {
+        $category = Category::where('slug', $slug)->with('products')->firstOrFail();
+        $categories = Category::all();
+        return view('pos.category', compact('categories', 'category'));
+    }
 }

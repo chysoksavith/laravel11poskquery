@@ -33,7 +33,6 @@
                                 </button>
                             </div>
                         </div>
-
                         <div class="card-body p-2">
                             <div class="row mb-4">
                                 <div class="col-md-4">
@@ -95,7 +94,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Product Code</label>
-                            <input type="text" class="form-control" id="product_code" name="product_code">
+                            <input type="text" class="form-control"" id="product_code" name="product_code" readonly>
                             @error('product_code')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
@@ -165,6 +164,11 @@
                             @error('image')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
+                            <img id="previewImage" src="#" alt="Image Preview"
+                                style="max-width: 100px; display: none;">
+                            <button type="button" id="removeImageBtn" class="btn btn-danger"
+                                style="display: none;">Remove Image</button>
+
                         </div>
 
                         <div class="modal-footer">
@@ -198,9 +202,9 @@
                         let tableBody = '';
                         if (response.data.length === 0) {
                             tableBody = `
-                            <tr>
-                                <td colspan="10" class="text-center">No Data Available</td>
-                            </tr>`;
+                    <tr>
+                        <td colspan="10" class="text-center">No Data Available</td>
+                    </tr>`;
                         } else {
                             $.each(response.data, function(index, product) {
                                 let createdAt = dayjs(product.created_at).format(
@@ -215,23 +219,22 @@
                                 let imageDisplay = imageUrl === 'null' ? 'No image ' :
                                     `<img src="${imageUrl}" alt="Product Image" style="max-width: 100px;" />`;
                                 tableBody += `
-                            <tr>
-                                <td>${product.id}</td>
-                                <td>${product.product_name}</td>
-                                <td>${product.category.category_name}</td>
-                                <td>${imageDisplay}</td>
-                                <td>${product.product_code}</td>
-                                <td>${product.product_price}$</td>
-                                <td>${product.selling_price}$</td>
-                                <td>${product.stock}</td>
-
-                                <td>${createdAt}</td>
-                                <td>${updatedAt}</td>
-                                <td>
-                                    <button class="btn btn-warning edit-btn" data-id="${product.id}">Edit</button>
-                                    <button class="btn btn-danger delete-btn" data-id="${product.id}">Delete</button>
-                                </td>
-                            </tr>`;
+                    <tr>
+                        <td>${product.id}</td>
+                        <td>${product.product_name}</td>
+                        <td>${product.category.category_name}</td>
+                        <td>${imageDisplay}</td>
+                        <td>${product.product_code}</td>
+                        <td>${product.product_price}$</td>
+                        <td>${product.selling_price}$</td>
+                        <td>${product.stock}</td>
+                        <td>${createdAt}</td>
+                        <td>${updatedAt}</td>
+                        <td>
+                            <button class="btn btn-warning edit-btn" data-id="${product.id}">Edit</button>
+                            <button class="btn btn-danger delete-btn" data-id="${product.id}">Delete</button>
+                        </td>
+                    </tr>`;
                             });
                         }
                         $('#product-table tbody').html(tableBody);
@@ -243,70 +246,38 @@
                 });
             }
 
-            // Render pagination
-            function renderPagination(data) {
-                let pagination = `<nav><ul class="pagination">`;
 
-                if (data.prev_page_url) {
-                    pagination += `<li class="page-item">
-                <a href="#" class="page-link" data-page="${data.current_page - 1}">Previous</a>
-            </li>`;
-                }
-
-                for (let i = 1; i <= data.last_page; i++) {
-                    pagination += `<li class="page-item ${data.current_page === i ? 'active' : ''}">
-                <a href="#" class="page-link" data-page="${i}">${i}</a>
-            </li>`;
-                }
-
-                if (data.next_page_url) {
-                    pagination += `<li class="page-item">
-                <a href="#" class="page-link" data-page="${data.current_page + 1}">Next</a>
-            </li>`;
-                }
-
-                pagination += `</ul></nav>`;
-                $('#pagination-links').html(pagination);
-
-                // Bind Click Event to Pagination Links
-                $('.page-link').on('click', function(e) {
-                    e.preventDefault();
-                    const page = $(this).data('page');
-                    if (page) {
-                        currentPage = page; // Set the current page to the clicked page
-                        fetchProduct(currentPage,
-                            searchQuery); // Fetch products for the current page and search query
-                    }
-                });
-            }
-
-            // Auto search on input
-            $('#search-input').on('input', function() {
-                searchQuery = $(this).val();
-                fetchProduct(1, searchQuery); // Always start from page 1 on input
-            });
-
-            // Manual search on button click
-            $('#search-button').on('click', function() {
-                searchQuery = $('#search-input').val();
-                fetchProduct(1, searchQuery); // Always start from page 1 on search click
-            });
-
-            fetchProduct(currentPage, searchQuery);
 
             // Open Add Product Modal
             $('[data-target="#addProductModal"]').on('click', function() {
                 $('#addProductModal .modal-title').text('Add Product'); // Set title
                 $('#productForm')[0].reset(); // Clear the form
                 $('.text-danger').remove(); // Remove error messages
+                $('#previewImage').hide(); // Hide preview image
+                $('#removeImageBtn').hide();
+                $.ajax({
+                    url: "{{ url('admin/generate-product-code') }}", // Ensure the URL is correct
+                    method: "GET",
+                    success: function(response) {
+                        $('#product_code').val(response
+                            .product_code); // Set generated product code
+                    },
+                    error: function(xhr) {
+                        console.error('Failed to generate product code');
+                    }
+                });
                 $('#productForm').off('submit').on('submit', handleCreate); // Set Create handler
+                // disable
             });
+
+
 
             // Handle Create Product
             function handleCreate(e) {
                 e.preventDefault();
                 $('.text-danger').remove();
                 const formData = new FormData($('#productForm')[0]);
+
                 $.ajax({
                     url: "{{ url('admin/product/store') }}",
                     method: "POST",
@@ -324,6 +295,7 @@
                             .fadeIn()
                             .delay(3000)
                             .fadeOut();
+
                         fetchProduct(currentPage, searchQuery); // Re-fetch the products
                         $('#productForm')[0].reset();
                         $('#addProductModal').modal('hide');
@@ -357,15 +329,17 @@
                         $('#selling_price').val(response.selling_price);
                         $('#discount').val(response.discount);
                         $('#stock').val(response.stock);
-
+                        $('#previewImage').attr('src', '/storage/' + response.image).show();
+                        $('#removeImageBtn').hide();
                         // Set Form Submission to Update
+
                         $('#productForm').off('submit').on('submit', function(e) {
                             e.preventDefault();
                             $('.text-danger').remove();
 
                             // Create FormData object for both regular fields and file input
                             let formData = new FormData(
-                            this); // This includes the image input as well
+                                this); // This includes the image input as well
 
                             $.ajax({
                                 url: `{{ url('admin/product/update') }}/${id}`,
@@ -386,7 +360,7 @@
                                         .delay(3000)
                                         .fadeOut();
                                     fetchProduct(currentPage,
-                                    searchQuery); // Re-fetch the products
+                                        searchQuery); // Re-fetch the products
                                     $('#productForm')[0].reset();
                                     $('#addProductModal').modal('hide');
                                 },
@@ -404,6 +378,20 @@
                 });
             }
 
+            // Preview Image
+            $('#image').on('change', function() {
+                const [file] = this.files;
+                if (file) {
+                    $('#previewImage').attr('src', URL.createObjectURL(file)).show();
+                    $('#removeImageBtn').show();
+                }
+            });
+            // remove preview image
+            $('#removeImageBtn').on('click', function() {
+                $('#image').val(''); // Reset file input
+                $('#previewImage').hide(); // Hide image preview
+                $(this).hide(); // Hide remove button
+            });
             // Handle Delete
             function handleDelete(e) {
                 e.preventDefault();
@@ -422,42 +410,69 @@
                                 .fadeIn()
                                 .delay(3000)
                                 .fadeOut();
+                        },
+                        error: function(xhr) {
+                            $('.flashMessage')
+                                .text(xhr.responseJSON.message)
+                                .removeClass('alert-success')
+                                .addClass('alert-danger')
+                                .fadeIn()
+                                .delay(3000)
+                                .fadeOut();
                         }
-                    })
+                    });
                 }
             }
-        });
-        $(document).on('click', '.updateProductStatus', function() {
-            var status = $(this).find("i").attr("status");
-            var product_id = $(this).attr("product_id");
+            // Render pagination
+            function renderPagination(data) {
+                let pagination = `<nav><ul class="pagination">`;
 
-            $.ajax({
-                url: "{{ url('admin/update-status') }}",
-                method: "POST",
-                data: {
-                    status: status,
-                    product_id: product_id
-                },
+                if (data.prev_page_url) {
+                    pagination += `<li class="page-item">
+            <a href="#" class="page-link" data-page="${data.current_page - 1}">Previous</a>
+        </li>`;
+                }
 
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    console.log(response)
-                    if (response["status"] == 0) {
-                        $("#product-" + product_id).html(
-                            "<i class='fas fa-toggle-off' style='color:grey;' status='Inactive'></i>"
-                        );
-                    } else {
-                        $("#product-" + product_id).html(
-                            "<i class='fas fa-toggle-on' style='color:blue;' status='Active'></i>"
-                        );
+                for (let i = 1; i <= data.last_page; i++) {
+                    pagination += `<li class="page-item ${data.current_page === i ? 'active' : ''}">
+            <a href="#" class="page-link" data-page="${i}">${i}</a>
+        </li>`;
+                }
+
+                if (data.next_page_url) {
+                    pagination += `<li class="page-item">
+            <a href="#" class="page-link" data-page="${data.current_page + 1}">Next</a>
+        </li>`;
+                }
+
+                pagination += `</ul></nav>`;
+                $('#pagination-links').html(pagination);
+
+                // Bind Click Event to Pagination Links
+                $('.page-link').on('click', function(e) {
+                    e.preventDefault();
+                    const page = $(this).data('page');
+                    if (page) {
+                        currentPage = page; // Set the current page to the clicked page
+                        fetchProduct(currentPage,
+                            searchQuery); // Fetch products for the current page and search query
                     }
-                },
-                error: function() {
-                    alert("Error occurred during AJAX request");
-                },
-            })
-        })
+                });
+            }
+
+            // Auto search on input
+            $('#search-input').on('input', function() {
+                searchQuery = $(this).val();
+                fetchProduct(1, searchQuery); // Always start from page 1 on input
+            });
+
+            // Manual search on button click
+            $('#search-button').on('click', function() {
+                searchQuery = $('#search-input').val();
+                fetchProduct(1, searchQuery); // Always start from page 1 on search click
+            });
+
+            fetchProduct(currentPage, searchQuery);
+        });
     </script>
 @endsection
