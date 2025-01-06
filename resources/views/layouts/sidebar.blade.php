@@ -17,59 +17,67 @@
 
             <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
                 @if ($user->is_role === 1)
-                    <li class="nav-item">
-                        <a href="{{ url('admin/dashboard') }}" class="nav-link active">
+                    <li class="nav-item ">
+                        <a href="{{ url('admin/dashboard') }}"
+                            class="nav-link @if (Request::segment(2) == 'dashboard') active @endif">
                             <i class="nav-icon bi bi-speedometer"></i>
                             <p>Dashboard</p>
                         </a>
                     </li>
                     <li class="nav-header">Master</li>
-                    <li class="nav-item">
-                        <a href="{{ url('admin/category') }}" class="nav-link">
+                    <li class="nav-item ">
+                        <a href="{{ url('admin/category') }}"
+                            class="nav-link @if (Request::segment(2) == 'category') active @endif">
                             <i class="nav-icon fa fa-cube"></i>
                             <p>Category</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ url('admin/brand') }}" class="nav-link">
+                        <a href="{{ url('admin/brand') }}"
+                            class="nav-link @if (Request::segment(2) == 'brand') active @endif">
                             <i class="nav-icon fa fa-cube"></i>
                             <p>brand</p>
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a href="{{ url('admin/product') }}" class="nav-link">
+                        <a href="{{ url('admin/product') }}"
+                            class="nav-link @if (Request::segment(2) == 'product') active @endif">
                             <i class="nav-icon fa fa-cubes"></i>
                             <p>Product</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ url('admin/member') }}" class="nav-link">
+                        <a href="{{ url('admin/member') }}"
+                            class="nav-link @if (Request::segment(2) == 'member') active @endif">
                             <i class="nav-icon fa fa-id-card"></i>
                             <p>Members</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{url('admin/pos')}}" class="nav-link">
+                        <a href="{{ url('admin/pos') }}" class="nav-link">
                             <i class="nav-icon fa fa-truck"></i>
                             <p>Pos</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="./docs/color-mode.html" class="nav-link">
+                        <a href="{{ url('admin/supplier') }}"
+                            class="nav-link @if (Request::segment(2) == 'supplier') active @endif">
                             <i class="nav-icon fa fa-truck"></i>
                             <p>Supplier</p>
                         </a>
                     </li>
                     <li class="nav-header">Transaction</li>
                     <li class="nav-item">
-                        <a href="./docs/color-mode.html" class="nav-link">
+                        <a href="{{ url('admin/expense') }}"
+                            class="nav-link @if (Request::segment(2) == 'expense') active @endif ">
                             <i class="nav-icon fa fa-money-bill"></i>
                             <p>Expenses</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="./docs/color-mode.html" class="nav-link">
+                        <a href="{{ url('admin/purchase') }}"
+                            class="nav-link @if (Request::segment(2) == 'purchase') active @endif">
                             <i class="nav-icon fa fa-download"></i>
                             <p>Purchase</p>
                         </a>

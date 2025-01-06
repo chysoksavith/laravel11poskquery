@@ -94,7 +94,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Product Code</label>
-                            <input type="text" class="form-control"" id="product_code" name="product_code" readonly>
+                            <input type="text" class="form-control" id="product_code" name="product_code" readonly>
                             @error('product_code')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
@@ -226,8 +226,10 @@
                         <td>${imageDisplay}</td>
                         <td>${product.product_code}</td>
                         <td>${product.product_price}$</td>
-                        <td>${product.selling_price}$</td>
                         <td>${product.stock}</td>
+                        <td class="updateProductStatus" id="product-${product.id}" product_id="${product.id}">
+                            ${statusIcon}
+                        </td>
                         <td>${createdAt}</td>
                         <td>${updatedAt}</td>
                         <td>
@@ -239,14 +241,49 @@
                         }
                         $('#product-table tbody').html(tableBody);
                         renderPagination(response);
-                        // Attach Edit and Delete Handlers
                         $('.edit-btn').on('click', handleEdit);
                         $('.delete-btn').on('click', handleDelete);
+                        $('.updateProductStatus').on('click', handleStatusToggle);
+
                     }
                 });
             }
 
+            function handleStatusToggle() {
+                // Get the current status from the icon
+                var status = $(this).find("i").attr("status") === 'Active' ? 1 : 0; // 1 = Active, 0 = Inactive
+                var product_id = $(this).attr("product_id");
 
+                // Toggle the status based on current status
+                var newStatus = status === 1 ? 0 : 1; // If active (1), make it inactive (0) and vice versa
+
+                $.ajax({
+                    headers: {
+                        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+                    },
+                    type: "POST",
+                    url: "{{ url('admin/update-status') }}",
+                    data: {
+                        status: newStatus, // Send the new status (0 or 1)
+                        product_id: product_id
+                    },
+                    success: function(response) {
+                        // Update the status icon based on the response
+                        if (response.status == 0) {
+                            $("#product-" + product_id).html(
+                                "<i class='fas fa-toggle-off' style='color:grey;' status='Inactive'></i>"
+                            );
+                        } else if (response.status == 1) {
+                            $("#product-" + product_id).html(
+                                "<i class='fas fa-toggle-on' style='color:blue;' status='Active'></i>"
+                            );
+                        }
+                    },
+                    error: function() {
+                        alert("Error occurred during AJAX request");
+                    }
+                });
+            }
 
             // Open Add Product Modal
             $('[data-target="#addProductModal"]').on('click', function() {
@@ -259,8 +296,10 @@
                     url: "{{ url('admin/generate-product-code') }}", // Ensure the URL is correct
                     method: "GET",
                     success: function(response) {
+                        console.log(response);
+
                         $('#product_code').val(response
-                            .product_code); // Set generated product code
+                            .product_code);
                     },
                     error: function(xhr) {
                         console.error('Failed to generate product code');
@@ -274,9 +313,7 @@
 
             // Handle Create Product
             function handleCreate(e) {
-                e.preventDefault();
-                $('.text-danger').remove();
-                const formData = new FormData($('#productForm')[0]);
+
 
                 $.ajax({
                     url: "{{ url('admin/product/store') }}",

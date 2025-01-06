@@ -4,9 +4,13 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admmin\PurchaseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\NotFoundController;
+use App\Http\Controllers\ProductTestAttrController;
+use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(AuthController::class)->group(function () {
@@ -52,6 +56,30 @@ Route::group(['middleware' => 'role:1', 'prefix' => 'admin'], function () {
         Route::get('/member/edit/{id}', 'edit');
         Route::post('/member/update/{id}', 'update');
         Route::delete('/member/delete/{id}', 'destroy');
+    });
+    Route::controller(SupplierController::class)->group(function () {
+        Route::get('/supplier', 'index');
+        Route::get('/supplier/data', 'getSupplier');
+        Route::post('/supplier/store', 'store');
+        Route::get('/supplier/edit/{id}', 'edit');
+        Route::post('/supplier/update/{id}', 'update');
+        Route::delete('/supplier/delete/{id}', 'destroy');
+    });
+    Route::controller(ExpenseController::class)->group(function () {
+        Route::get('/expense', 'index');
+        Route::get('/expense/data', 'geExpense');
+        Route::post('/expense/store', 'store');
+        Route::get('/expense/edit/{id}', 'edit');
+        Route::post('/expense/update/{id}', 'update');
+        Route::delete('/expense/delete/{id}', 'destroy');
+    });
+    Route::controller(PurchaseController::class)->group(function () {
+        Route::get('/purchase', 'index');
+        Route::get('/purchase/data', 'getPurchase');
+        Route::post('/purchase/store', 'store');
+        Route::get('/purchase/edit/{id}', 'edit');
+        Route::post('/purchase/update/{id}', 'update');
+        Route::delete('/purchase/delete/{id}', 'destroy');
     });
 });
 

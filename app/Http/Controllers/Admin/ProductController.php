@@ -27,7 +27,7 @@ class ProductController extends Controller
             $query->where('product_name', 'like', '%' . $request->search . '%')
                 ->orWhere('product_code', 'like', '%' . $request->search . '%');
         }
-        $products = $query->orderBy('created_at','desc')->paginate(15);
+        $products = $query->orderBy('created_at', 'desc')->paginate(15);
 
         return response()->json($products);
     }
@@ -179,14 +179,15 @@ class ProductController extends Controller
     {
         if ($request->ajax()) {
             $data = $request->all();
-            $status = ($data['status'] == 'Active') ? 0 : 1;
-            // Update product status
+
+            // Ensure you're working with the correct status (0 = inactive, 1 = active)
+            $status = $data['status'] == 1 ? 1 : 0;
+
+            // Update the product status in the database
             Product::where('id', $data['product_id'])->update(['status' => $status]);
 
-            return response()->json([
-                'status' => $status,
-                'product_id' => $data['product_id']
-            ]);
+            // Return the updated status to the frontend
+            return response()->json(['status' => $status, 'product_id' => $data['product_id']]);
         }
     }
 }
