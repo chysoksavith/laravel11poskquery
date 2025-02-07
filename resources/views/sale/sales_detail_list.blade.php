@@ -5,13 +5,13 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-6">
-                    <h3 class="mb-0">Purchase Detail</h3>
+                    <h3 class="mb-0">Sale Detail</h3>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-end">
                         <li class="breadcrumb-item"><a href="#">Home</a></li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Purchase Detail
+                            Sale Detail
                         </li>
                     </ol>
                 </div>
@@ -27,11 +27,9 @@
                         <div class="card-header">
                             <h3 class="card-title">Sale Detail List</h3>
                             <div class="card-tools">
-                                {{-- <a href="{{ url('admin/purchase/detail/delete_all_record') }}" class="btn btn-danger"
-                                    onclick="return confirm('are you sure you want to delete all records?')">Delete All </a>
-                                <a href="{{ url('admin/purchase/detail_add/' . $purchase_id) }}" class="btn btn-primary">Add
-                                    Purchase
-                                    Detail</a> --}}
+                                <a href="{{ url('admin/sale/sale_detail_add/' . $sale_id) }}" class="btn btn-primary">Add
+                                    Sale
+                                    Detail</a>
                             </div>
                         </div>
 
@@ -48,7 +46,7 @@
                                     <div class="col-md-2">
                                         <label for="selling_price" class="form-label">Selling Price</label>
                                         <input type="text" id="selling_price" name="selling_price" class="form-control"
-                                            placeholder="Enter Purchase Price" value="{{ request()->selling_price }}">
+                                            placeholder="Enter Selling Price" value="{{ request()->selling_price }}">
                                     </div>
 
                                     <!-- Amount Field -->

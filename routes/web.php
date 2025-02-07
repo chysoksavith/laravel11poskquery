@@ -88,7 +88,7 @@ Route::group(['middleware' => 'role:1', 'prefix' => 'admin'], function () {
         Route::put('/purchase_detail/update/{id}', 'purchaseDetailUpdate')
             ->name('purchase.detail.update');
         Route::get('/purchase_detail/delete/{id}', 'purchaseDetailDelete');
-        Route::get('/purchase/detail/delete_all_record','purchaseDetailDeleteAll');
+        Route::get('/purchase/detail/delete_all_record', 'purchaseDetailDeleteAll');
     });
     Route::controller(SaleController::class)->group(function () {
         Route::get('/sales', 'index');
@@ -97,7 +97,9 @@ Route::group(['middleware' => 'role:1', 'prefix' => 'admin'], function () {
         Route::get('/sales/edit/{id}', 'edit');
         Route::post('/sales/update/{id}', 'update');
         Route::delete('/sales/delete/{id}', 'destroy');
-        Route::get('/sales/sale_detail_list/{id}','saleDetailList');
+        Route::get('/sales/sale_detail_list/{id}', 'saleDetailList');
+        Route::get('/sale/sale_detail_add/{id}', 'saleDetailAdd');
+        Route::post('/sale/sale_detail_add/{id}', 'saleDetailInsert');
     });
 });
 
