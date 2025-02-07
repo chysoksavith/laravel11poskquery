@@ -120,4 +120,30 @@ class PurchaseController extends Controller
             return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
         }
     }
+    public function purchaseDetailEdit($id)
+    {
+        $data['getProduct'] = Product::get();
+        $data['getRecord'] = PurchaseDetail::findOrFail($id);
+        return view('purchase.detail_edit', $data);
+    }
+    public function purchaseDetailUpdate(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'purchase_id'   => 'required|integer|exists:purchases,id',
+            'product_id'    => 'required|integer|exists:products,id',
+            'purchase_price' => 'required|numeric|min:0',
+            'amount'        => 'required|numeric|min:0',
+            'subtotal'      => 'required|numeric|min:0',
+        ]);
+
+        try {
+            $purchaseDetail = PurchaseDetail::findOrFail($id);
+
+            $purchaseDetail->update($validated);
+            return redirect('admin/purchase/detail/' . $validated['purchase_id'])
+                ->with('success', 'Record successfully updated.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
+        }
+    }
 }

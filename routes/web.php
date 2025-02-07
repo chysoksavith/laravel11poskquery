@@ -84,6 +84,9 @@ Route::group(['middleware' => 'role:1', 'prefix' => 'admin'], function () {
         Route::get('/purchase/detail/{id}',  'purchase_detail')->name('purchase.detail');
         Route::get('/purchase/detail_add/{id}',  'purchase_detail_add')->name('purchase.detail.add');
         Route::post('/purchase/detail_add/{id}',  'purchase_detail_add_insert')->name('purchase.detail.add.insert');
+        Route::get('/purchase_detail/edit/{id}', 'purchaseDetailEdit');
+        Route::put('/purchase_detail/update/{id}', 'purchaseDetailUpdate')
+            ->name('purchase.detail.update');
     });
     Route::controller(SaleController::class)->group(function () {
         Route::get('/sales', 'index');
@@ -100,4 +103,3 @@ Route::group(['middleware' => 'role:2'], function () {
     Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('user.dashboard');
 });
 Route::fallback([NotFoundController::class, 'index']);
-
