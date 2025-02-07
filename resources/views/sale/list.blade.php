@@ -5,13 +5,13 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-6">
-                    <h3 class="mb-0">Purchase</h3>
+                    <h3 class="mb-0">Sale</h3>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-end">
                         <li class="breadcrumb-item"><a href="#">Home</a></li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Purchase
+                            Sale
                         </li>
                     </ol>
                 </div>
@@ -24,11 +24,11 @@
                 <div class="col-md-12">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h3 class="card-title">Purchase List</h3>
+                            <h3 class="card-title">Sale List</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-primary" data-toggle="modal"
-                                    data-target="#addPurchaseModal">
-                                    Add Purchase
+                                    data-target="#addSaleModal">
+                                    Add Sale
                                 </button>
                             </div>
                         </div>
@@ -43,14 +43,16 @@
                                     <button id="search-button" class="btn btn-primary">Search</button>
                                 </div>
                             </div>
-                            <table class="table table-bordered" id="purchase_table">
+                            <table class="table table-bordered" id="sale_table">
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Supplier Name</th>
+                                        <th>Member</th>
+                                        <th>User</th>
                                         <th>Total Items</th>
                                         <th>Total Price</th>
-                                        <th>Price</th>
+                                        <th>Discount</th>
+                                        <th>Accepted</th>
                                         <th>Create at</th>
                                         <th>Update at</th>
                                         <th>Action</th>
@@ -71,32 +73,45 @@
     <div class="flashMessage alert alert-success" style="display: none"></div>
 
     <!-- Modal -->
-    <div class="modal fade" id="addPurchaseModal" tabindex="-1" role="dialog" aria-labelledby="addPurchaseModalLabel"
+    <div class="modal fade" id="addSaleModal" tabindex="-1" role="dialog" aria-labelledby="addSaleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addPurchaseModalLabel">Add Purchase</h5>
+                    <h5 class="modal-title" id="addSaleModalLabel">Add Sale</h5>
                 </div>
                 <div class="modal-body">
-                    <form id="purchaseForm">
+                    <form id="saleForm">
                         @csrf
                         <div class="mb-3">
-                            <label class="form-label">Supplier</label>
-                            <select name="supplier_id" id="supplier_id" class="form-select">
-                                <option value="">Select Supplier</option>
-                                @foreach ($supplier as $supply)
-                                    <option value="{{ $supply->id }}">{{ $supply->supplier_name }}</option>
+                            <label class="form-label">Member</label>
+                            <select name="member_id" id="member_id" class="form-select">
+                                <option value="">Select Member</option>
+                                @foreach ($members as $member)
+                                    <option value="{{ $member->id }}">{{ $member->name_member }}</option>
                                 @endforeach
                             </select>
-                            @error('supplier_id')
+                            @error('member_id')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">User</label>
+                            <select name="user_id" id="user_id" class="form-select">
+                                <option value="">Select User</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('user_id')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Total Item</label>
                             <input type="number" class="form-control" id="total_item" name="total_item" step="0.01"
-                                required> @error('total_item')
+                                required>
+                            @error('total_item')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
@@ -110,13 +125,23 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Discount</label>
-                            <input type="number" class="form-control" id="discount" name="discount" step="0.01"
-                                required>
+                            <input type="number" class="form-control" id="discount" name="discount" step="0.01">
                             @error('discount')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Accepted</label>
+                            <select name="accepted" id="accepted" class="form-select">
+                                <option value="">Selected</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
 
+                            </select>
+                            @error('accepted')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             <button type="submit" class="btn btn-primary">Save</button>
@@ -128,6 +153,7 @@
         </div>
     </div>
 @endsection
+
 @section('js')
     <script>
         $(document).ready(function() {
@@ -136,14 +162,13 @@
 
             function fetchData(page = 1, search = '') {
                 $.ajax({
-                    url: "{{ url('admin/purchase/data') }}",
+                    url: "{{ url('admin/sales/data') }}",
                     method: "GET",
                     data: {
                         page,
                         search
                     },
                     success: function(response) {
-                        console.log(response);
                         let tableBody = '';
                         if (response.data.length === 0) {
                             tableBody = `
@@ -151,56 +176,56 @@
                         <td colspan="10" class="text-center">No Data Available</td>
                     </tr>`;
                         } else {
-                            response.data.forEach(purchase => {
-                                let createdAt = dayjs(purchase.created_at).format(
+                            response.data.forEach(sale => {
+                                let createdAt = dayjs(sale.created_at).format(
                                     'MM-DD-YYYY h:mm A');
-                                let updatedAt = dayjs(purchase.updated_at).format(
+                                let updatedAt = dayjs(sale.updated_at).format(
                                     'MM-DD-YYYY h:mm A');
 
                                 tableBody += `
                         <tr>
-                            <td>${purchase.id}</td>
-                            <td>${purchase.supplier.supplier_name}</td>
-                            <td>${purchase.total_item}</td>
-                            <td>${purchase.total_price}</td>
-                            <td>${purchase.discount}</td>
+                            <td>${sale.id}</td>
+                            <td>${sale.member.name_member}</td>
+                            <td>${sale.user.name}</td>
+                            <td>${sale.total_item}</td>
+                            <td>${sale.total_price} $</td>
+                            <td>${sale.discount} %</td>
+                            <td>${sale.accepted}</td>
+
                             <td>${createdAt}</td>
                             <td>${updatedAt}</td>
                             <td>
-                                <a href="{{ url('admin/purchase/detail') }}/${purchase.id}" class="btn btn-info">Detail</a>
-                                <button class="btn btn-warning edit-btn" data-id="${purchase.id}">Edit</button>
-                                <button class="btn btn-danger delete-btn" data-id="${purchase.id}">Delete</button>
-
+                                <button class="btn btn-warning edit-btn" data-id="${sale.id}">Edit</button>
+                                <button class="btn btn-danger delete-btn" data-id="${sale.id}">Delete</button>
                             </td>
                         </tr>`;
                             });
                         }
-                        $('#purchase_table tbody').html(tableBody);
+                        $('#sale_table tbody').html(tableBody);
                         renderPagination(response);
 
                     }
-                });
+                })
             }
             fetchData(currentPage, searchQuery);
 
-            $('[data-target="#addPurchaseModal"]').on('click', function() {
-                $('#addPurchaseModal .modal-title').text('Add Purchase');
-                $('#purchaseForm')[0].reset();
+            $('[data-target="#addSaleModal"]').on('click', function() {
+                $('#addSaleModal .modal-title').text('Add Sale');
+                $('#saleForm')[0].reset();
                 $('.text-danger').remove();
-
-                $('#purchaseForm').off('submit').on('submit', handleCreate);
+                $('#saleForm').off('submit').on('submit', handleCreate);
             });
-            $('#purchase_table tbody').on('click', '.edit-btn', handleEdit);
-            $('#purchase_table tbody').on('click', '.delete-btn', handleDelete);
+            $('#sale_table tbody').on('click', '.edit-btn', handleEdit);
+            $('#sale_table tbody').on('click', '.delete-btn', handleDelete);
 
-            // create
+            // create function
             function handleCreate(e) {
                 e.preventDefault();
-                $('.text-danger').remove();
-                const formData = new FormData($('#purchaseForm')[0]);
+                $('.text-danger').remove()
+                const formData = new FormData($('#saleForm')[0]);
 
                 $.ajax({
-                    url: "{{ url('admin/purchase/store') }}",
+                    url: "{{ url('admin/sales/store') }}",
                     method: "POST",
                     data: formData,
                     processData: false,
@@ -217,8 +242,8 @@
                             .delay(3000)
                             .fadeOut();
                         fetchData(currentPage, searchQuery);
-                        $('#purchaseForm')[0].reset();
-                        $('#addPurchaseModal').modal('hide');
+                        $('#saleForm')[0].reset();
+                        $('#addSaleModal').modal('hide');
                     },
                     error: function(xhr) {
                         const errors = xhr.responseJSON.errors;
@@ -226,37 +251,34 @@
                             $(`#${key}`).after(`<span class="text-danger">${errors[key][0]}</span>`);
                         }
                     }
-                });
+                })
             }
-            // edit
+            // edit function
             function handleEdit() {
                 const id = $(this).data('id');
                 $('.text-danger').remove();
                 $.ajax({
-                    url: `{{ url('admin/purchase/edit') }}/${id}`,
+                    url: `{{ url('admin/sales/edit') }}/${id}`,
                     method: "GET",
                     success: function(response) {
-                        $('#addPurchaseModal').modal('show');
-                        $('#addPurchaseModal .modal-title').text('Update Purchase');
-                        $('#supplier_id').val(response.supplier_id);
+                        $('#addSaleModal').modal('show');
+                        $('#addSaleModal .modal-title').text('Update Sale');
+                        $('#member_id').val(response.member_id);
+                        $('#user_id').val(response.user_id);
                         $('#total_item').val(response.total_item);
                         $('#total_price').val(response.total_price);
                         $('#discount').val(response.discount);
+                        $('#accepted').val(response.accepted);
 
-
-                        $('#purchaseForm').off('submit').on('submit', function(e) {
+                        $('#saleForm').off('submit').on('submit', function(e) {
                             e.preventDefault();
                             let formData = new FormData(this);
                             $.ajax({
-                                url: `{{ url('admin/purchase/update') }}/${id}`,
+                                url: `{{ url('admin/sales/update') }}/${id}`,
                                 method: "POST",
                                 data: formData,
                                 processData: false,
                                 contentType: false,
-                                headers: {
-                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
-                                        'content')
-                                },
                                 success: function(response) {
                                     $('.flashMessage')
                                         .text(response.success)
@@ -266,8 +288,8 @@
                                         .delay(3000)
                                         .fadeOut();
                                     fetchData(currentPage, searchQuery);
-                                    $('#purchaseForm')[0].reset();
-                                    $('#addPurchaseModal').modal('hide');
+                                    $('#saleForm')[0].reset();
+                                    $('#addSaleModal').modal('hide');
                                 },
                                 error: function(xhr) {
                                     const errors = xhr.responseJSON.errors;
@@ -282,12 +304,12 @@
                     }
                 })
             }
-            // delete
+            // delete function
             function handleDelete(e) {
                 const id = $(this).data('id');
                 if (confirm('Are you sure you want to delete?')) {
                     $.ajax({
-                        url: `{{ url('admin/purchase/delete') }}/${id}`,
+                        url: `{{ url('admin/sales/delete') }}/${id}`,
                         method: "DELETE",
                         data: {
                             _token: $('meta[name="csrf-token"]').attr('content')
@@ -299,20 +321,21 @@
                                 .fadeIn()
                                 .delay(3000)
                                 .fadeOut();
-                        },
-                        error: function(xhr) {
-                            $('.flashMessage')
-                                .text(xhr.responseJSON.message)
-                                .removeClass('alert-success')
-                                .addClass('alert-danger')
-                                .fadeIn()
-                                .delay(3000)
-                                .fadeOut();
                         }
                     });
                 }
             }
+            // search
+            $('#search-input').on('input', function() {
+                searchQuery = $(this).val();
+                fetchData(1, searchQuery);
+            });
 
+            // Manual search on button click
+            $('#search-button').on('click', function() {
+                searchQuery = $('#search-input').val();
+                fetchData(1, searchQuery);
+            });
 
             function renderPagination(data) {
                 let pagination = `<nav><ul class="pagination">`;
@@ -349,18 +372,6 @@
                     }
                 });
             }
-
-            // search
-            $('#search-input').on('input', function() {
-                searchQuery = $(this).val();
-                fetchData(1, searchQuery);
-            });
-
-            // Manual search on button click
-            $('#search-button').on('click', function() {
-                searchQuery = $('#search-input').val();
-                fetchData(1, searchQuery);
-            });
         });
     </script>
 @endsection

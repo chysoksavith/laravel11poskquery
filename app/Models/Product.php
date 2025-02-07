@@ -29,6 +29,8 @@ class Product extends Model
     {
         return $this->belongsTo(Brand::class);
     }
+    public function purchaseDetails(){
+        return $this->hasMany(PurchaseDetail::class);
+    }
 
-   
 }

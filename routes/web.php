@@ -10,6 +10,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\NotFoundController;
 use App\Http\Controllers\ProductTestAttrController;
+use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 
@@ -80,6 +81,17 @@ Route::group(['middleware' => 'role:1', 'prefix' => 'admin'], function () {
         Route::get('/purchase/edit/{id}', 'edit');
         Route::post('/purchase/update/{id}', 'update');
         Route::delete('/purchase/delete/{id}', 'destroy');
+        Route::get('/purchase/detail/{id}',  'purchase_detail')->name('purchase.detail');
+        Route::get('/purchase/detail_add/{id}',  'purchase_detail_add')->name('purchase.detail.add');
+        Route::post('/purchase/detail_add/{id}',  'purchase_detail_add_insert')->name('purchase.detail.add.insert');
+    });
+    Route::controller(SaleController::class)->group(function () {
+        Route::get('/sales', 'index');
+        Route::get('/sales/data', 'getSales');
+        Route::post('/sales/store', 'store');
+        Route::get('/sales/edit/{id}', 'edit');
+        Route::post('/sales/update/{id}', 'update');
+        Route::delete('/sales/delete/{id}', 'destroy');
     });
 });
 
@@ -88,3 +100,4 @@ Route::group(['middleware' => 'role:2'], function () {
     Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('user.dashboard');
 });
 Route::fallback([NotFoundController::class, 'index']);
+

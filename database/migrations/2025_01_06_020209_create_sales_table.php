@@ -13,6 +13,17 @@ return new class extends Migration
     {
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('member_id')
+                ->constrained('members')
+                ->cascadeOnDelete();
+
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->cascadeOnDelete();
+            $table->unsignedInteger('total_item')->default(0);
+            $table->decimal('total_price', 10, 2)->default(0);
+            $table->unsignedInteger('discount')->default(0);
+            $table->enum('accepted', ['yes', 'no'])->nullable();
             $table->timestamps();
         });
     }

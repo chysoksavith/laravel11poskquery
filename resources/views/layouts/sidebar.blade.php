@@ -5,7 +5,8 @@
     <!-- Sidebar Brand -->
     <div class="sidebar-brand">
         <a href="javascript:;}" class="brand-link">
-            <img src="../../dist/assets/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image opacity-75 shadow">
+            <img src="{{ asset('dist/assets/img/AdminLTELogo.png') }}" alt="AdminLTE Logo"
+                class="brand-image opacity-75 shadow">
             <span class="brand-text fw-light">{{ $user->name }}</span>
         </a>
     </div>
@@ -83,7 +84,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="./docs/color-mode.html" class="nav-link">
+                        <a href="{{ url('admin/sales') }}"
+                            class="nav-link @if (Request::segment(2) == 'sales') active @endif">
                             <i class="nav-icon fa fa-dollar"></i>
                             <p>Sales List</p>
                         </a>

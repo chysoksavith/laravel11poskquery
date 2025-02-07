@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Admmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Models\Purchase;
+use App\Models\PurchaseDetail;
 use App\Models\Supply;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class PurchaseController extends Controller
 {
@@ -25,7 +28,7 @@ class PurchaseController extends Controller
             });
         }
 
-        $purchases = $query->orderBy('created_at', 'desc')->paginate(1);
+        $purchases = $query->orderBy('created_at', 'desc')->paginate(15);
         return response()->json($purchases);
     }
 
@@ -86,5 +89,35 @@ class PurchaseController extends Controller
         return response()->json([
             'success' => "Purchase deleted successfully"
         ]);
+    }
+    public function purchase_detail($id)
+    {
+        $data['purchase_id'] = $id;
+        $data['getRecord'] = PurchaseDetail::with('product', 'purchase')->where('purchase_details.purchase_id', '=', $id)->get();
+        return view('purchase.detail', $data);
+    }
+    public function purchase_detail_add($id)
+    {
+        $data['purchase_id'] = $id;
+        $data['getProducts'] = Product::get();
+        return view('purchase.detail_add', $data);
+    }
+    public function purchase_detail_add_insert(Request $request)
+    {
+        $validated = $request->validate([
+            'purchase_id'   => 'required|integer|exists:purchases,id',
+            'product_id'    => 'required|integer|exists:products,id',
+            'purchase_price' => 'required|numeric|min:0',
+            'amount'        => 'required|integer|min:1',
+            'subtotal'      => 'required|numeric|min:0',
+        ]);
+
+        try {
+            PurchaseDetail::create($validated);
+            return redirect('admin/purchase/detail/' . $validated['purchase_id'])
+                ->with('success', 'Record successfully created.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
+        }
     }
 }
