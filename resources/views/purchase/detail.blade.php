@@ -27,6 +27,8 @@
                         <div class="card-header">
                             <h3 class="card-title">Purchase Detail List</h3>
                             <div class="card-tools">
+                                <a href="{{ url('admin/purchase/detail/delete_all_record') }}" class="btn btn-danger"
+                                    onclick="return confirm('are you sure you want to delete all records?')">Delete All </a>
                                 <a href="{{ url('admin/purchase/detail_add/' . $purchase_id) }}" class="btn btn-primary">Add
                                     Purchase
                                     Detail</a>
@@ -88,9 +90,6 @@
                                     </div>
                                 </div>
                             </form>
-
-
-
                             <table class="table table-bordered" id="purchase_table">
                                 <thead>
                                     <tr>

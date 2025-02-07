@@ -143,10 +143,6 @@ class PurchaseController extends Controller
             $getRecord->where('purchase_details.purchase_id', $id);
         }
 
-        // Debugging output (optional: remove this after testing)
-        // dd($getRecord->toSql(), $getRecord->getBindings());
-
-        // Paginate results
         $data['getRecord'] = $getRecord->paginate(10);
 
         return view('purchase.detail', $data);
@@ -208,5 +204,11 @@ class PurchaseController extends Controller
         $purchaseDetail = PurchaseDetail::findOrFail($id);
         $purchaseDetail->delete();
         return redirect()->back()->with('success', 'record delete success');
+    }
+    public function purchaseDetailDeleteAll()
+    {
+        Purchase::truncate();
+        PurchaseDetail::truncate();
+        return redirect()->back()->with('success', 'record deleted success');
     }
 }
