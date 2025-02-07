@@ -91,12 +91,68 @@ class PurchaseController extends Controller
             'success' => "Purchase deleted successfully"
         ]);
     }
-    public function purchase_detail($id)
+    public function purchase_detail(Request $request, $id)
     {
         $data['purchase_id'] = $id;
-        $data['getRecord'] = PurchaseDetail::with('product', 'purchase')->where('purchase_details.purchase_id', '=', $id)->get();
+
+        // Fetch records with product name
+        $getRecord = PurchaseDetail::select('purchase_details.*', 'products.product_name')
+            ->join('products', 'products.id', '=', 'purchase_details.product_id')
+            ->where('purchase_details.purchase_id', $id);
+
+        // Check if any filters are applied
+        $hasFilter = false;
+
+        if ($request->filled('id')) {
+            $getRecord->where('purchase_details.id', $request->id);
+            $hasFilter = true;
+        }
+
+        if ($request->filled('product_id')) {
+            $getRecord->where('products.product_name', 'like', '%' . $request->product_id . '%');
+            $hasFilter = true;
+        }
+
+        if ($request->filled('purchase_price')) {
+            $getRecord->where('purchase_details.purchase_price', $request->purchase_price);
+            $hasFilter = true;
+        }
+
+        if ($request->filled('amount')) {
+            $getRecord->where('purchase_details.amount', $request->amount);
+            $hasFilter = true;
+        }
+
+        if ($request->filled('subtotal')) {
+            $getRecord->where('purchase_details.subtotal', $request->subtotal);
+            $hasFilter = true;
+        }
+
+        if ($request->filled('created_at')) {
+            $getRecord->whereDate('purchase_details.created_at', $request->created_at);
+            $hasFilter = true;
+        }
+
+        if ($request->filled('updated_at')) {
+            $getRecord->whereDate('purchase_details.updated_at', $request->updated_at);
+            $hasFilter = true;
+        }
+
+        // If no filters, retrieve all records for the given purchase_id
+        if (!$hasFilter) {
+            $getRecord->where('purchase_details.purchase_id', $id);
+        }
+
+        // Debugging output (optional: remove this after testing)
+        // dd($getRecord->toSql(), $getRecord->getBindings());
+
+        // Paginate results
+        $data['getRecord'] = $getRecord->paginate(10);
+
         return view('purchase.detail', $data);
     }
+
+
     public function purchase_detail_add($id)
     {
         $data['purchase_id'] = $id;
