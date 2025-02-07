@@ -100,6 +100,9 @@ Route::group(['middleware' => 'role:1', 'prefix' => 'admin'], function () {
         Route::get('/sales/sale_detail_list/{id}', 'saleDetailList');
         Route::get('/sale/sale_detail_add/{id}', 'saleDetailAdd');
         Route::post('/sale/sale_detail_add/{id}', 'saleDetailInsert');
+        Route::get('/sale/sale_detail_edit/{id}', 'saleDetailEdit');
+        Route::post('/sale/sale_detail_edit/{id}', 'saleDetailUpdate');
+        Route::get('/sale/sale_detail_delete/{id}', 'saleDetailDelete');
     });
 });
 

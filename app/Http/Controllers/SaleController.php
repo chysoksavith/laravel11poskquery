@@ -89,6 +89,7 @@ class SaleController extends Controller
     {
         $sale = Sale::findOrFail($id);
         $sale->delete();
+        SaleDetail::where('sale_details.sale_id', '=', $id)->delete();
         return response()->json([
             'success' => "Sale updated successfully",
         ]);
@@ -148,7 +149,7 @@ class SaleController extends Controller
             'sale_id'       => 'required|exists:sales,id',
             'product_id'    => 'required|exists:products,id',
             'selling_price' => 'required|numeric|min:0',
-            'amount'        => 'required|numeric|min:0',
+            'amount'        => 'required|integer|min:1',
             'discount'      => 'nullable|integer|min:0',
             'subtotal'      => 'required|numeric|min:0',
         ]);
@@ -156,5 +157,32 @@ class SaleController extends Controller
         SaleDetail::create($validated);
         return redirect('admin/sales/sale_detail_list/' . $validated['sale_id'])
             ->with('success', 'Record successfully created.');
+    }
+    public function saleDetailEdit($id)
+    {
+        $data['getProduct'] = Product::get();
+        $data['getRecord'] = SaleDetail::findOrFail($id);
+        return view('sale.sale_detail_edit', $data);
+    }
+    public function saleDetailUpdate(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'sale_id'       => 'required|exists:sales,id',
+            'product_id'    => 'required|exists:products,id',
+            'selling_price' => 'required|numeric|min:0',
+            'amount'        => 'required|integer|min:1',
+            'discount'      => 'nullable|integer|min:0',
+            'subtotal'      => 'required|numeric|min:0',
+        ]);
+        $saleDetail = SaleDetail::findOrFail($id);
+        $saleDetail->update($validated);
+        return redirect('admin/sales/sale_detail_list/' . $validated['sale_id'])
+            ->with('success', 'Record successfully updated.');
+    }
+    public function saleDetailDelete($id)
+    {
+        $saleDetail = SaleDetail::findOrFail($id);
+        $saleDetail->delete();
+        return redirect()->back()->with('success', 'record successfully deleted');
     }
 }
