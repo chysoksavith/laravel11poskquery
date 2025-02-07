@@ -37,21 +37,18 @@
 
                         <div class="card-body">
                             <form method="GET">
-                                {{-- <div class="row g-3 mb-4">
-
-
+                                <div class="row g-3 mb-4">
                                     <!-- Product Name Field -->
                                     <div class="col-md-4">
                                         <label for="product_id" class="form-label">Product Name</label>
                                         <input type="text" id="product_id" name="product_id" class="form-control"
                                             placeholder="Enter Product Name" value="{{ request()->product_id }}">
                                     </div>
-
-                                    <!-- Purchase Price Field -->
+                                    <!-- Selling Price Field -->
                                     <div class="col-md-2">
-                                        <label for="purchase_price" class="form-label">Purchase Price</label>
-                                        <input type="text" id="purchase_price" name="purchase_price" class="form-control"
-                                            placeholder="Enter Purchase Price" value="{{ request()->purchase_price }}">
+                                        <label for="selling_price" class="form-label">Selling Price</label>
+                                        <input type="text" id="selling_price" name="selling_price" class="form-control"
+                                            placeholder="Enter Purchase Price" value="{{ request()->selling_price }}">
                                     </div>
 
                                     <!-- Amount Field -->
@@ -85,10 +82,10 @@
                                     <!-- Buttons -->
                                     <div class="col-12 text-end">
                                         <button class="btn btn-primary" type="submit">Search</button>
-                                        <a href="{{ url('admin/purchase/detail/' . $purchase_id) }}"
+                                        <a href="{{ url('admin/sales/sale_detail_list/' . $sale_id) }}"
                                             class="btn btn-danger">Reset</a>
                                     </div>
-                                </div> --}}
+                                </div>
                             </form>
                             <table class="table table-bordered" id="purchase_table">
                                 <thead>

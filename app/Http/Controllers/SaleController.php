@@ -93,11 +93,47 @@ class SaleController extends Controller
         ]);
     }
     // sale Detail
-    public function saleDetailList($id)
-    {
-        $data['getRecord'] = SaleDetail::select('sale_details.*', 'products.product_name')
-            ->join('products', 'products.id', '=', 'sale_details.product_id')
-            ->where('sale_details.sale_id', '=', $id)->paginate(1);
-        return view('sale.sales_detail_list', $data);
+    public function saleDetailList(Request $request, $id)
+{
+    $data['sale_id'] = $id;
+
+    $getRecord = SaleDetail::select('sale_details.*', 'products.product_name')
+        ->join('products', 'products.id', '=', 'sale_details.product_id')
+        ->where('sale_details.sale_id', '=', $id); // Ensures filtering is applied to the correct sale
+
+    // Check if any filters are applied
+    if ($request->filled('id')) {
+        $getRecord->where('sale_details.id', $request->id);
     }
+
+    if ($request->filled('product_id')) {
+        $getRecord->where('sale_details.product_id', $request->product_id); // Changed to correct column
+    }
+
+    if ($request->filled('selling_price')) {
+        $getRecord->where('sale_details.selling_price', $request->selling_price);
+    }
+
+    if ($request->filled('amount')) {
+        $getRecord->where('sale_details.amount', $request->amount);
+    }
+
+    if ($request->filled('subtotal')) {
+        $getRecord->where('sale_details.subtotal', $request->subtotal);
+    }
+
+    if ($request->filled('created_at')) {
+        $getRecord->whereDate('sale_details.created_at', $request->created_at);
+    }
+
+    if ($request->filled('updated_at')) {
+        $getRecord->whereDate('sale_details.updated_at', $request->updated_at);
+    }
+
+    // Apply pagination
+    $data['getRecord'] = $getRecord->paginate(10); // Increase pagination count if needed
+
+    return view('sale.sales_detail_list', $data);
+}
+
 }
