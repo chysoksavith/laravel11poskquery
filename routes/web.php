@@ -87,6 +87,7 @@ Route::group(['middleware' => 'role:1', 'prefix' => 'admin'], function () {
         Route::get('/purchase_detail/edit/{id}', 'purchaseDetailEdit');
         Route::put('/purchase_detail/update/{id}', 'purchaseDetailUpdate')
             ->name('purchase.detail.update');
+        Route::get('/purchase_detail/delete/{id}', 'purchaseDetailDelete');
     });
     Route::controller(SaleController::class)->group(function () {
         Route::get('/sales', 'index');

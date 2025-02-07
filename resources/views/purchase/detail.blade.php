@@ -69,9 +69,11 @@
                                             <td>{{ $value->created_at->format('d-m-Y H:i:s') }}</td>
                                             <td>{{ $value->updated_at->format('d-m-Y H:i:s') }}</td>
                                             <td>
-                                                <a href="{{url('admin/purchase_detail/edit/'.$value->id)}}" class="btn btn-primary">Edit</a>
-                                                <a href="{{url('admin/purchase_detail/edit/'.$value->id)}}" class="btn btn-primary">Edit</a>
-
+                                                <a href="{{ url('admin/purchase_detail/edit/' . $value->id) }}"
+                                                    class="btn btn-primary">Edit</a>
+                                                <a href="{{ url('admin/purchase_detail/delete/' . $value->id) }}"
+                                                    onclick="return confirm('Are you sure you want to delete?')"
+                                                    class="btn btn-danger">Delete</a>
                                             </td>
                                         </tr>
                                     @empty

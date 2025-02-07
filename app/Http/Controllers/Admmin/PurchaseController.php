@@ -86,6 +86,7 @@ class PurchaseController extends Controller
     {
         $purchase = Purchase::findOrFail($id);
         $purchase->delete();
+        PurchaseDetail::where('purchase_details.purchase_id', '=', $id)->delete();
         return response()->json([
             'success' => "Purchase deleted successfully"
         ]);
@@ -145,5 +146,11 @@ class PurchaseController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
         }
+    }
+    public function purchaseDetailDelete($id)
+    {
+        $purchaseDetail = PurchaseDetail::findOrFail($id);
+        $purchaseDetail->delete();
+        return redirect()->back()->with('success', 'record delete success');
     }
 }
