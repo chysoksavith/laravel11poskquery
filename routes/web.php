@@ -97,6 +97,7 @@ Route::group(['middleware' => 'role:1', 'prefix' => 'admin'], function () {
         Route::get('/sales/edit/{id}', 'edit');
         Route::post('/sales/update/{id}', 'update');
         Route::delete('/sales/delete/{id}', 'destroy');
+        Route::get('/sales/sale_detail_list/{id}','saleDetailList');
     });
 });
 

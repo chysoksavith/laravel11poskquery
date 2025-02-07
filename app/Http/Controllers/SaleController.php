@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Member;
 use App\Models\Sale;
+use App\Models\SaleDetail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
@@ -90,5 +91,13 @@ class SaleController extends Controller
         return response()->json([
             'success' => "Sale updated successfully",
         ]);
+    }
+    // sale Detail
+    public function saleDetailList($id)
+    {
+        $data['getRecord'] = SaleDetail::select('sale_details.*', 'products.product_name')
+            ->join('products', 'products.id', '=', 'sale_details.product_id')
+            ->where('sale_details.sale_id', '=', $id)->paginate(1);
+        return view('sale.sales_detail_list', $data);
     }
 }

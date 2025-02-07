@@ -195,6 +195,7 @@
                             <td>${createdAt}</td>
                             <td>${updatedAt}</td>
                             <td>
+                                <a href="{{ url('admin/sales/sale_detail_list') }}/${sale.id}" class="btn btn-info">Sale Detail</a>
                                 <button class="btn btn-warning edit-btn" data-id="${sale.id}">Edit</button>
                                 <button class="btn btn-danger delete-btn" data-id="${sale.id}">Delete</button>
                             </td>
